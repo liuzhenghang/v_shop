@@ -1,0 +1,99 @@
+.container{
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+}
+.head{
+	height: 0.375rem;
+	background: #6495ed;
+}
+.head h2{
+	text-align: center;
+	line-height: 0.375rem;
+	font-size: 14px;
+	color: #fff;
+}
+/*头部*/
+.main{
+	flex: 1;
+	overflow: auto;
+}
+.main .banner{
+	height: 1.83rem;
+}
+.main .banner img{
+	width: 100%;
+	height: 100%;
+}
+.content{
+	margin:0.02rem 0;
+}
+.productTop{
+	margin-bottom:0.1rem ;
+	height: 0.31rem;
+	line-height: 0.31rem;
+	padding: 0 0.12rem;
+	border-bottom: 1px solid #ccc;
+	border-top: 1px solid #ccc;
+	display: flex;
+    justify-content: space-between;
+}
+.productContent{
+	display: flex;
+	justify-content: space-around;
+}
+.product-item{
+	width:48%;
+}
+.product-item:nth-child(1){
+	border-right: 1px solid #ccc;
+}
+.product-item .itembox{
+	width: 99%;
+	margin: 0 auto;
+}
+.product-item .itembox img{
+	width: 100%;
+}
+.product-item .goods-name{
+	height: 0.25rem;
+	line-height: 0.25rem;
+}
+.product-item .addCartBox{
+	display: flex;
+	justify-content: space-between;
+	padding-right: 0.15rem;
+	height: 0.29rem;
+}
+.product-item .addCartBox span{
+	line-height: 0.29rem;
+}
+.product-item .addCartBox .goods-price{
+	color: red;
+}
+.product-item .addCartBox .goods-cart{
+	font-size: 0.22rem;
+	color: #757575;
+}
+/*中间*/
+.foot{
+	height: 0.45rem;
+	background: #6495ed;
+	display:flex;
+    justify-content:space-around;
+    align-items:center;
+}
+ .foot li{
+    text-align:center;
+ }
+ .foot li a{
+   color:#fff;
+ }
+  .foot li a span{
+  	display: block;
+  }
+  .foot li a:hover{
+   color:orange;
+ }
+/*底部*/
+
