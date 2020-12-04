@@ -13,7 +13,7 @@
 
               <div class="productTop-right"><span>{{index/2+1}}F</span></div>
             </div>
-            <div class="productContent"  >
+            <div class="productContent">
 
               <!--            使用循环遍历所有的商品-->
               <!--            由于每行显示两个，所以下边添加v-if，如果该行是偶数行，才显示该商品和下一位商品-->
@@ -26,7 +26,7 @@
                   <p class="goods-name">{{item.name}}</p>
                   <div class="addCartBox">
                     <span class="goods-price">¥{{item.price}}</span>
-                    <span class="goods-cart fa fa-shopping-cart"></span>
+                    <span class="goods-cart fa fa-shopping-cart" @click="addCart(item)"></span>
                   </div>
                 </div>
               </div>
@@ -40,7 +40,7 @@
                   <p class="goods-name">{{goods[index+1].name}}</p>
                   <div class="addCartBox">
                     <span class="goods-price">¥{{goods[index+1].price}}</span>
-                    <span class="goods-cart fa fa-shopping-cart"></span>
+                    <span class="goods-cart fa fa-shopping-cart" @click="addCart(goods[index+1])"></span>
                   </div>
                 </div>
                 <div class="itembox" v-if="!(index<goods.length-1)">
@@ -97,7 +97,9 @@
 </template>
 
 <script>
-	export default {
+	import {Toast} from "mint-ui";
+
+  export default {
     data(){
       return {
         goods:[]
@@ -108,6 +110,7 @@
       this.$ajax.get("http://localhost:8080/customer/goods/get/all").then(res=>{
         if (res.data.code===0){
           this.goods=res.data.data;
+          this.$store.commit("setGoodsList",this.goods);
           console.log(res.data.data)
         }else {
           console.log(res)
@@ -152,6 +155,28 @@
           }
         }
         return s;
+      },
+      addCart:function (goods) {
+        this.$ajax({
+          method:"post",
+          url:"http://localhost:8080/cart/add",
+          headers:this.$store.getters.getHeader,
+          data:{gid:goods.id,num:1}
+        }).then(res=>{
+          if (res.data.code===0){
+            Toast({
+              message:"添加成功",
+              position:"middle",
+              duration:3000
+            });
+          }else {
+            Toast({
+              message:res.data.msg,
+              position:"middle",
+              duration:3000
+            });
+          }
+        })
       }
     }
 

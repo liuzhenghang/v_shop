@@ -8,6 +8,8 @@ import Home from './pages/Home.vue'
 import Goods from './pages/Goods.vue'
 import Cart from './pages/Cart.vue'
 import Mine from './pages/Mine.vue'
+import Address from './pages/Address'
+import EnterOrder from './pages/EnableOrder'
 import Login from'./pages/Login.vue'
 
 
@@ -29,6 +31,14 @@ const routes = [{
 	{
 		path: '/mine',
 		component: Mine
+	},
+	{
+		path: '/address',
+		component: Address
+	},
+	{
+		path: '/enter_order',
+		component: EnterOrder
 	},
 	{
 		path:'/login',

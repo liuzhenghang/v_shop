@@ -1,8 +1,8 @@
 <template>
 	<div class="login">
 		<div class="in">
-		<mt-field label="username" placeholder="Input username" v-model="username"></mt-field>
-		<mt-field label="password" placeholder="Input password" type="password" v-model="password"></mt-field>
+		<mt-field label="用户名" placeholder="请输入用户名" v-model="username"></mt-field>
+		<mt-field label="密码" placeholder="请输入密码" type="password" v-model="password"></mt-field>
 		<mt-button size="large" @click="login()" type="primary">登录</mt-button>
 		</div>
 	</div>
@@ -10,6 +10,7 @@
 
 <script>
 	import{ Toast } from "mint-ui";
+  // import qs from "qs";
 	export default{
 		data(){
 			return{
@@ -20,14 +21,13 @@
 		beforeRouteEnter(to,from,next) {
 			next(vm=>{
 				if(vm.$store.getters.isLogin){
-					vm.$store.dispatch("setCurrentUser",null)
+					vm.$store.commit("removeUser")
 				}
 			})
-			
 		},
 		methods: {
 			login(){
-				if(this.username==" " || this.password==" "){
+				if(this.username==="" || this.password===""){
 					Toast({
 						message:"帐号密码不能为空",
 						position:"middle",
@@ -35,19 +35,21 @@
 					});
 					return;
 				}
-				this.$ajax.get("http://localhost:3000/user").then(res =>{
-					const dataArr = res.data;
-					const newArr = dataArr.filter(item => {
-						return (
-							item.username ===this.username &&item.password === this.password
-						);
-					});
-					if(newArr !=null && newArr.length >0){
-						this.$store.dispatch("setCurrentUser",newArr[0]);
-						this.$router.push("/mine");
-					}else{
-						this.$store.dispatch("setCurrentUser",null);
-					}
+				this.$ajax.post("http://localhost:8080/user/login",
+            {num:this.username,password:this.password}).then(res =>{
+					if (res.data.code===0){const user=res.data.data;
+					console.log(user)
+            this.$store.commit('setUser',user);
+            // this.$store.dispatch("setCurrentUser",user);
+            this.$router.push("/mine");
+          }else{
+            this.$store.commit("removeUser");
+            Toast({
+              message:res.data.msg,
+              position:"middle",
+              duration:3000
+            });
+          }
 				})
 			}
 		}

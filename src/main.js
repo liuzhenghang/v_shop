@@ -12,8 +12,8 @@ import { Field } from 'mint-ui';
 Vue.component(Field.name, Field);
 // 将mintui注册到vue中
 
-// import VueTouch from 'vue-touch'
-// Vue.use(VueTouch, { name: 'v-touch' })
+import VueTouch from 'vue-touch'
+Vue.use(VueTouch, { name: 'v-touch' })
 
 import store from'./store.js'
 // 全局变量

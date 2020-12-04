@@ -3,30 +3,30 @@
 	<div class="main">
 		<div class="cart">
 			<!--begin-->
-			<div class="cart-item" :class="{selected:itemIndex===index}" v-for="(val,index) in goodsCarts" :key="index">
+			<div class="cart-item" :class="{selected:itemIndex===index}" v-for="(val,index) in goodsCarts" :key="val.id">
 				<v-touch v-on:swipeleft="left(index)" v-on:swiperight="right">
 					<div class="cart-content flex-align-center">
-						<div class="goods-radio" @click="changeRadio()">
-							<i class="cart_radio" v-show="!radioItem"></i>
-							<i class="cart_radio_select" v-show="radioItem"></i>
+						<div class="goods-radio" @click="changeRadio(index)">
+							<i class="cart_radio" v-show="!val.click"></i>
+							<i class="cart_radio_select" v-show="val.click"></i>
 						</div>
 						<div class="flex">
 							<div class="goods-img">
-								<img :src="val.pic" />
+								<img :src="getIndexImage(val)"/>
 							</div>
 							<div class="goods-textBox">
-								<p class="goods-name">{{val.protitle}}</p>
+								<p class="goods-name">{{val.name}}</p>
 								<div class="goodsOp flex">
-									<i class="shop_cut" @click="cut(val)"></i>
+									<i class="shop_cut" @click="cut(val,index)"></i>
 									<input type="text" :value="val.num" />
-									<i class="shop_add" @click="add(val)"></i>
+									<i class="shop_add" @click="add(val,index)"></i>
 								</div>
-								<p class="goods-coach">¥{{val.price}}</p>
+								<p>¥{{val.price}}×{{val.num}}=<a class="goods-coach">¥{{val.price*val.num}}</a></p>
 							</div>
 						</div>
 					</div>
 					<!--v-show="itemIndex === cartIndex"-->
-					<div class="remove" @click='remove(val)'>
+					<div class="remove" @click='remove(val,index)'>
 						<i></i>
 					</div>
 				</v-touch>
@@ -38,27 +38,28 @@
 		<div class="cartBottom-detail flex-between">
 			<div class="flex">
 				<div class="shopRadio">
-					<i class="cart_radio" style="display: none;"></i>
-					<i class="cart_radio_select"></i>
+					<i class="cart_radio" v-if="!getAllClick()" @click="selectAll(true)"></i>
+					<i class="cart_radio_select" v-if="getAllClick()" @click="selectAll(false)"></i>
 				</div>
 				<div class="bottom-left">
-					<p>合计:￥0</p>
+					<p>合计:￥{{getAllPrice()}}</p>
 				</div>
 			</div>
-
 			<div class="subminCart">
-				<p>提交订单</p>
+				<p @click="pushOrder()">提交订单</p>
 			</div>
 		</div>
 		<!--提交订单 end-->
 	</div>
 </template>
 <script>
-	export default {
+	import {Toast} from "mint-ui";
+
+  export default {
 		data() {
 			return {
 				goodsCarts: [],
-				itemIndex: "",
+				itemIndex: [],
 				radioItem: false
 			};
 		},
@@ -73,41 +74,197 @@
 				} else {
 					vm.$router.push('/login');
 				}
-
 			});
-		},
-		created() {
-			this.getGoodsCarts();
 		},
 		mounted() {
 			//触发事件
 			this.$eventbus.$emit("changeTitle", "购物车");
+			this.$ajax({
+        method:"get",
+        url:"http://localhost:8080/cart/my",
+        headers:this.$store.getters.getHeader,
+      }).then(res=>{
+        if (res.data.code===0){
+          const cart=res.data.data;
+          const cartList=[];
+          for (let i = 0; i < cart.length; i++) {
+            let goo=this.so(cart[i].gid);
+            goo.num=cart[i].num;
+            goo.id=cart[i].id;
+            goo.click=false;
+            cartList.push(goo)
+          }
+          this.goodsCarts=cartList;
+          console.log(cartList);
+        }
+      })
 		},
 		methods: {
-			getGoodsCarts() {
-				this.goodsCarts = this.$store.getters.getGoods;
-				//console.log("购物车"+this.$store.getters.getGoods)
-			},
+      getIndexImage(item){
+        let box=item.imgs.split(";");
+        // 字符串转数组，比如1;2;3;4;5;就转化为[1,2,3,4,5]
+        if (box.length===0){
+          return ""
+          // 如果没有图片，那么返回空，不渲染图片
+        }else {
+          let img=''
+          for (let i = 0; i < box.length; i++) {
+            if (box[i]!==""){
+              // 返回第一个图片
+              img="http://localhost:8080/file/image/"+box[i];
+              return img;
+            }
+          }
+          return ""
+        }
+      },
+      so(gid){
+        const goods=this.$store.getters.getGoodsList;
+        for (let i=0;i<goods.length;i++){
+          if (goods[i].id===gid){
+            const goo={
+              gid:gid,
+              name:goods[i].name,
+              price:goods[i].price,
+              imgs:goods[i].imgs
+            }
+            return goo;
+          }
+        }
+        return {
+          gid:gid,
+          name:"该商品以下架",
+          price:0,
+          imgs:"",
+        }
+      },
 			left(index) {
 				this.itemIndex = index
 			},
 			right() {
 				this.itemIndex = ""
 			},
-			add(item) {
-				this.$store.dispatch('addgood', item);
-
+			add(item,index) {
+        this.$ajax({
+          method:"post",
+          url:"http://localhost:8080/cart/add",
+          headers:this.$store.getters.getHeader,
+          data:{gid:item.gid,num:1}
+        }).then(res=>{
+          if (res.data.code===0){
+            this.goodsCarts[index].num=(item.num+1)
+          }else {
+            Toast({
+              message:res.data.msg,
+              position:"middle",
+              duration:3000
+            });
+          }
+        })
+				// this.$store.dispatch('addgood', item);
 			},
-			cut(item) {
+			cut(item,index) {
 				// console.log(item);
-				this.$store.dispatch('cutgood', item);
+        if (item.num-1<=0){
+          this.remove(item,index);
+          return ;
+        }
+        this.$ajax({
+          method:"post",
+          url:"http://localhost:8080/cart/add",
+          headers:this.$store.getters.getHeader,
+          data:{gid:item.gid,num:-1}
+        }).then(res=>{
+          if (res.data.code===0){
+            this.goodsCarts[index].num=(item.num-1)
+          }else {
+            Toast({
+              message:res.data.msg,
+              position:"middle",
+              duration:3000
+            });
+          }
+        })
+				// this.$store.dispatch('cutgood', item);
 			},
-			remove(item) {
-				this.$store.dispatch('delgood', item);
+			remove(item,index) {
+        this.$ajax({
+          method:"post",
+          url:"http://localhost:8080/cart/remove",
+          headers:this.$store.getters.getHeader,
+          data:{id:item.id}
+        }).then(res=>{
+          if (res.data.code===0){
+            let g=[];
+            for (let i=0;i<this.goodsCarts.length;i++){
+              if (i!==index){
+                g.push(this.goodsCarts[index]);
+              }
+            }
+            // this.goodsCarts.splice(index,index);
+            this.goodsCarts=[];
+            for (let i = 0; i < g.length; i++) {
+              this.goodsCarts.push(g[i])
+            }
+            // this.goodsCarts=g;
+          }else {
+            Toast({
+              message:res.data.msg,
+              position:"middle",
+              duration:3000
+            });
+          }
+        })
 			},
-			changeRadio() {
-				this.radioItem = !this.radioItem
-			}
+			changeRadio(index) {
+				if (this.goodsCarts[index].click){
+          this.goodsCarts[index].click=false;
+        }else {
+          this.goodsCarts[index].click=true;
+        }
+			},
+      getAllPrice(){
+        let price=0;
+        for (let i = 0; i < this.goodsCarts.length; i++) {
+          if (this.goodsCarts[i].click){
+            price+=(this.goodsCarts[i].price*this.goodsCarts[i].num);
+          }
+        }
+        return price;
+      },
+      getAllClick(){
+        let all=this.goodsCarts.length;
+        let num=0;
+        for (let i = 0; i < this.goodsCarts.length; i++) {
+          if (this.goodsCarts[i].click){
+            num++;
+          }
+        }
+        return (num===all);
+      },
+      selectAll(et){
+        for (let i = 0; i < this.goodsCarts.length; i++) {
+          this.goodsCarts[i].click=et;
+        }
+      },
+      pushOrder(){
+        const list=[];
+        for (let i = 0; i < this.goodsCarts.length; i++) {
+          if (this.goodsCarts[i].click){
+            list.push(this.goodsCarts[i])
+          }
+        }
+        if (list.length===0){
+          Toast({
+            message:"未选择商品",
+            position:"middle",
+            duration:3000
+          });
+          return ;
+        }
+        this.$store.commit("setEnterOrder",list);
+        this.$router.push("/enter_order")
+      }
 		}
 	};
 </script>

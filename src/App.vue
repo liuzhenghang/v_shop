@@ -19,7 +19,23 @@
 		components: {
 			Header,
 			Footer
-		}
+		},
+    mounted() {
+      const user={id:this.$store.getters.currentUser.id,token:this.$store.getters.currentUser.token
+      };
+      console.log(user)
+      if (user.id!==null){
+        this.$ajax.get("http://localhost:8080/user/token",{params:user})
+            .then(res=>{
+              console.log(res)
+              if (res.data.code===0){
+                this.$store.commit('setUser',res.data.data);
+              }else {
+                // this.$store.commit('removeUser');
+              }
+            })
+      }
+    }
 	}
 </script>
 
