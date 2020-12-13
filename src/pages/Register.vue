@@ -1,7 +1,8 @@
 <template>
 	<div class="register">
 		<div class="content">
-			<mt-field label="用户名" placeholder="请输入用户名" v-model="username"></mt-field>
+			<mt-field label="账号" placeholder="请输入账号" v-model="num"></mt-field>
+			<mt-field label="昵称" placeholder="请输入昵称" v-model="name"></mt-field>
 			<mt-field label="密码" placeholder="请输入密码" type="password" v-model="password"></mt-field>
 			<mt-button size="large" @click="register()" type="primary">注册</mt-button>
 		</div>
@@ -14,33 +15,45 @@
 	export default {
 		data() {
 			return {
-				username: "",
+        num:"",
+				name: "",
 				password: ""
 			};
 		},
-		methods: {
+    mounted() {
+      this.$eventbus.$emit("changeTitle", "注册");
+    },
+    methods: {
 			register() {
-				if (this.username == "" || this.password == "") {
+				if (this.num === "" || this.password === "" || this.name==="") {
 					Toast({
-						message: "账号和密码不能为空",
+						message: "账号、昵称和密码不能为空",
 						position: "middle",
 						duration: 5000
 					});
 					return;
 				}
 
-				const userObj = {
-					username: this.username,
-					password: this.password
-				};
-
-				this.$ajax.post("http://localhost:3000/user", userObj).then(()=> {
-					Toast({
-						message: "注册成功",
-						iconClass: "icon icon-success"
-					});
-					this.$router.push("/login");
-				});
+				this.$ajax({
+          method:"post",
+          url:"http://localhost:8080/user/register",
+          data:{num:this.num,name:this.name,password:this.password}
+        }).then(res=>{
+          if (res.data.code===0){
+            Toast({
+              message: "注册成功",
+              position: "middle",
+              duration: 5000
+            });
+            this.$router.push("/login")
+          }else {
+            Toast({
+              message: res.data.msg,
+              position: "middle",
+              duration: 5000
+            });
+          }
+        })
 			}
 		}
 	};

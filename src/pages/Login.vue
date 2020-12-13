@@ -25,7 +25,10 @@
 				}
 			})
 		},
-		methods: {
+    mounted() {
+      this.$eventbus.$emit("changeTitle", "登录");
+    },
+    methods: {
 			login(){
 				if(this.username==="" || this.password===""){
 					Toast({
@@ -37,11 +40,14 @@
 				}
 				this.$ajax.post("http://localhost:8080/user/login",
             {num:this.username,password:this.password}).then(res =>{
-					if (res.data.code===0){const user=res.data.data;
-					console.log(user)
+					if (res.data.code===0){
+            const user=res.data.data;
             this.$store.commit('setUser',user);
-            // this.$store.dispatch("setCurrentUser",user);
-            this.$router.push("/mine");
+            if (this.$route.path!==this.$store.getters.getRouterPath){
+              this.$router.push(this.$store.getters.getRouterPath);
+            }else {
+              this.$router.push("/mine");
+            }
           }else{
             this.$store.commit("removeUser");
             Toast({

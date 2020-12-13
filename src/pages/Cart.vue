@@ -7,8 +7,10 @@
 				<v-touch v-on:swipeleft="left(index)" v-on:swiperight="right">
 					<div class="cart-content flex-align-center">
 						<div class="goods-radio" @click="changeRadio(index)">
-							<i class="cart_radio" v-show="!val.click"></i>
-							<i class="cart_radio_select" v-show="val.click"></i>
+<!--							<i class="cart_radio" v-show="!val.click"></i>-->
+							<i class="fa fa-circle-o fa-2x" v-show="!val.click"></i>
+<!--							<i class="cart_radio_select" v-show="val.click"></i>-->
+							<i class="fa fa-circle fa-2x" v-show="val.click"></i>
 						</div>
 						<div class="flex">
 							<div class="goods-img">
@@ -17,16 +19,19 @@
 							<div class="goods-textBox">
 								<p class="goods-name">{{val.name}}</p>
 								<div class="goodsOp flex">
-									<i class="shop_cut" @click="cut(val,index)"></i>
-									<input type="text" :value="val.num" />
-									<i class="shop_add" @click="add(val,index)"></i>
+<!--									<i class="shop_cut" @click="cut(val,index)"></i>-->
+									<i class="fa fa-minus-square-o fa-2x" @click="cut(val,index)"></i>
+
+                  <p>{{val.num}}</p>
+<!--									<i class="shop_add" @click="add(val,index)"></i>-->
+									<i class="fa fa-plus-square-o fa-2x" @click="add(val,index)"></i>
 								</div>
 								<p>¥{{val.price}}×{{val.num}}=<a class="goods-coach">¥{{val.price*val.num}}</a></p>
 							</div>
 						</div>
 					</div>
 					<!--v-show="itemIndex === cartIndex"-->
-					<div class="remove" @click='remove(val,index)'>
+					<div class="remove" @click='remove(val)'>
 						<i></i>
 					</div>
 				</v-touch>
@@ -38,8 +43,10 @@
 		<div class="cartBottom-detail flex-between">
 			<div class="flex">
 				<div class="shopRadio">
-					<i class="cart_radio" v-if="!getAllClick()" @click="selectAll(true)"></i>
-					<i class="cart_radio_select" v-if="getAllClick()" @click="selectAll(false)"></i>
+<!--					<i class="cart_radio" v-if="!getAllClick()" @click="selectAll(true)"></i>-->
+					<i class="fa fa-circle-o fa-2x" v-if="!getAllClick()" @click="selectAll(true)"></i>
+<!--					<i class="cart_radio_select" v-if="getAllClick()" @click="selectAll(false)"></i>-->
+					<i class="fa fa-circle fa-2x" v-if="getAllClick()" @click="selectAll(false)"></i>
 				</div>
 				<div class="bottom-left">
 					<p>合计:￥{{getAllPrice()}}</p>
@@ -63,43 +70,40 @@
 				radioItem: false
 			};
 		},
-		beforeRouteEnter(to, from, next) {
-			// 在渲染该组件的对应路由被 confirm 前调用
-			// 不！能！获取组件实例 `this`
-			// 因为当守卫执行前，组件实例还没被创建
-			next(vm => {
-				//通过 `vm` 访问组件实例
-				if (vm.$store.getters.isLogin) {
-					next();
-				} else {
-					vm.$router.push('/login');
-				}
-			});
-		},
 		mounted() {
 			//触发事件
+      if (!this.$store.getters.isLogin){
+        this.$store.commit("setRouterPath","/");
+        this.$router.push("/login");
+        return ;
+      }
 			this.$eventbus.$emit("changeTitle", "购物车");
-			this.$ajax({
-        method:"get",
-        url:"http://localhost:8080/cart/my",
-        headers:this.$store.getters.getHeader,
-      }).then(res=>{
-        if (res.data.code===0){
-          const cart=res.data.data;
-          const cartList=[];
-          for (let i = 0; i < cart.length; i++) {
-            let goo=this.so(cart[i].gid);
-            goo.num=cart[i].num;
-            goo.id=cart[i].id;
-            goo.click=false;
-            cartList.push(goo)
-          }
-          this.goodsCarts=cartList;
-          console.log(cartList);
-        }
-      })
+      this.getCart();
 		},
 		methods: {
+      getCart(){
+        this.$ajax({
+          method:"get",
+          url:"http://localhost:8080/cart/my",
+          headers:this.$store.getters.getHeader,
+        }).then(res=>{
+          if (res.data.code===0){
+            const cart=res.data.data;
+            const cartList=[];
+            for (let i = 0; i < cart.length; i++) {
+              let goo=this.so(cart[i].gid);
+              goo.num=cart[i].num;
+              goo.id=cart[i].id;
+              goo.click=false;
+              cartList.push(goo)
+            }
+            this.goodsCarts=cartList;
+            this.$eventbus.$emit("changeTitle", "购物车（共"+cartList.length+"件宝贝）");
+            this.right();
+            console.log(cartList);
+          }
+        })
+      },
       getIndexImage(item){
         let box=item.imgs.split(";");
         // 字符串转数组，比如1;2;3;4;5;就转化为[1,2,3,4,5]
@@ -133,7 +137,7 @@
         }
         return {
           gid:gid,
-          name:"该商品以下架",
+          name:"该商品已下架",
           price:0,
           imgs:"",
         }
@@ -161,12 +165,11 @@
             });
           }
         })
-				// this.$store.dispatch('addgood', item);
 			},
 			cut(item,index) {
 				// console.log(item);
         if (item.num-1<=0){
-          this.remove(item,index);
+          this.remove(item);
           return ;
         }
         this.$ajax({
@@ -185,9 +188,8 @@
             });
           }
         })
-				// this.$store.dispatch('cutgood', item);
 			},
-			remove(item,index) {
+			remove(item) {
         this.$ajax({
           method:"post",
           url:"http://localhost:8080/cart/remove",
@@ -195,17 +197,8 @@
           data:{id:item.id}
         }).then(res=>{
           if (res.data.code===0){
-            let g=[];
-            for (let i=0;i<this.goodsCarts.length;i++){
-              if (i!==index){
-                g.push(this.goodsCarts[index]);
-              }
-            }
-            // this.goodsCarts.splice(index,index);
-            this.goodsCarts=[];
-            for (let i = 0; i < g.length; i++) {
-              this.goodsCarts.push(g[i])
-            }
+            this.getCart();
+
             // this.goodsCarts=g;
           }else {
             Toast({
@@ -283,7 +276,10 @@
 		color: #fff;
 		background: #757575;
 	}
-
+  .shopRadio{
+    text-align: center;
+    line-height: 0.45rem;
+  }
 	.flex-between {
 		display: flex;
 		justify-content: space-between;
@@ -318,9 +314,9 @@
 		height: 0.27rem;
 	}
 
-	.goodsOp input {
-		border: none;
-		font-size: 0.18rem;
+	.goodsOp p {
+		/*border: none;*/
+		font-size: larger;
 		text-align: center;
 		width: 0.3rem;
 	}

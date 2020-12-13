@@ -2,11 +2,11 @@
 <!--  title的渲染-->
 	<mt-header class="head" v-bind:title="title">
 <!--    跳转到路由根路径-->
-		<router-link to="/" slot="left">
-			<mt-button icon="back"></mt-button>
-		</router-link>
+		<a slot="left">
+			<mt-button icon=""></mt-button>
+		</a>
 <!--    暂留右侧按钮-->
-		<mt-button icon="more" slot="right"></mt-button>
+		<mt-button icon="" slot="right"></mt-button>
 	</mt-header>
 </template>
 

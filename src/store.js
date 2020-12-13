@@ -14,7 +14,8 @@ const store = new Vuex.Store({
 		isLogin: false,
 		goodsList:[],
 		cart:[],
-		enterOrder:[]
+		enterOrder:[],
+		router_path:"/"
 	},
 	//对数据操作的方法
 	mutations: {
@@ -47,6 +48,9 @@ const store = new Vuex.Store({
 		},
 		setEnterOrder(state,orderList){
 			state.enterOrder=orderList;
+		},
+		setRouterPath(state,path){
+			state.router_path=path;
 		}
 
 	},
@@ -82,6 +86,9 @@ const store = new Vuex.Store({
 			const list=state.enterOrder;
 			state.enterOrder=[];
 			return list;
+		},
+		getRouterPath(state){
+			return state.router_path;
 		}
 	},
 	actions: {}

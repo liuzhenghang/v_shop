@@ -34,6 +34,12 @@ export default {
     }
   },
   mounted(){
+    if (!this.$store.getters.isLogin){
+      this.$store.commit("setRouterPath",this.$route.path);
+      this.$router.push("/login");
+
+      return ;
+    }
     this.$eventbus.$emit("changeTitle", "地址管理");
     this.getAddress();
   },

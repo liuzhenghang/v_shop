@@ -25,7 +25,7 @@
                   </div>
                   <p class="goods-name">{{item.name}}</p>
                   <div class="addCartBox">
-                    <span class="goods-price">¥{{item.price}}</span>
+                    <span class="goods-price">¥{{item.price}}  <a style="color: #757575" v-show="item.stock<10">剩{{item.stock}}件</a></span>
                     <span class="goods-cart fa fa-shopping-cart" @click="addCart(item)"></span>
                   </div>
                 </div>
@@ -39,7 +39,7 @@
                   </div>
                   <p class="goods-name">{{goods[index+1].name}}</p>
                   <div class="addCartBox">
-                    <span class="goods-price">¥{{goods[index+1].price}}</span>
+                    <span class="goods-price">¥{{goods[index+1].price}}  <a style="color: #757575" v-show="goods[index+1].stock<10">剩{{goods[index+1].stock}}件</a></span>
                     <span class="goods-cart fa fa-shopping-cart" @click="addCart(goods[index+1])"></span>
                   </div>
                 </div>
@@ -50,46 +50,6 @@
               </div>
             </div>
           </div>
-<!--          <div class="productTop">-->
-<!--            <p class="productTop-text"><a style="color: red">当前是测试环境</a></p>-->
-<!--            <div class="productTop-right"><span class="fa fa-bell-o"></span></div>-->
-<!--          </div>-->
-<!--					<div class="productContent" v-for="(item,index) in goods" :key="index" >-->
-
-<!--&lt;!&ndash;            使用循环遍历所有的商品&ndash;&gt;-->
-<!--&lt;!&ndash;            由于每行显示两个，所以下边添加v-if，如果该行是偶数行，才显示该商品和下一位商品&ndash;&gt;-->
-<!--						<div class="product-item" v-if="index%2===0">-->
-<!--&lt;!&ndash;              渲染索引值下的商品&ndash;&gt;-->
-<!--							<div class="itembox">-->
-<!--								<div class="itemimg">-->
-<!--									<img class="goodsImage" :src="getIndexImage(item)" />-->
-<!--								</div>-->
-<!--								<p class="goods-name">{{item.name}}</p>-->
-<!--								<div class="addCartBox">-->
-<!--									<span class="goods-price">¥{{item.price}}</span>-->
-<!--									<span class="goods-cart fa fa-shopping-cart"></span>-->
-<!--								</div>-->
-<!--							</div>-->
-<!--						</div>-->
-<!--						<div class="product-item" v-if="index%2===0">-->
-<!--&lt;!&ndash;              渲染索引值+1下的商品&ndash;&gt;-->
-<!--							<div class="itembox" v-if="index<goods.length-1">-->
-<!--&lt;!&ndash;                如果该商品索引超出了商品数组容量，那么就不显示商品信息，只提供一个空的div占位&ndash;&gt;-->
-<!--								<div class="itemimg">-->
-<!--                  <img class="goodsImage" :src="getIndexImage(goods[index+1])" />-->
-<!--								</div>-->
-<!--								<p class="goods-name">{{goods[index+1].name}}</p>-->
-<!--								<div class="addCartBox">-->
-<!--									<span class="goods-price">¥{{goods[index+1].price}}</span>-->
-<!--									<span class="goods-cart fa fa-shopping-cart"></span>-->
-<!--								</div>-->
-<!--							</div>-->
-<!--              <div class="itembox" v-if="!(index<goods.length-1)">-->
-<!--&lt;!&ndash;                占位div&ndash;&gt;-->
-<!--							</div>-->
-
-<!--						</div>-->
-<!--					</div>-->
 				</div>
 			</div>
 		</div>

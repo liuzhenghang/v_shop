@@ -5,10 +5,10 @@
         <h3 style="color:white;">`<a style="color: black">{{ address }}</a></h3>
       </div>
       <div style="width: 20%;float: left;text-align: center;border-left:solid 2px #757575;height: auto">
-        <i class="fa fa-angle-right fa-5x" aria-hidden="true"></i>
+        <i class="fa fa-angle-right fa-5x" aria-hidden="true" @click="openSelectAddress()"></i>
       </div>
     </div>
-    <div style="background: white;margin-top: 20px">
+    <div style="background:white;margin-top: 20px">
       <div class="category-item" v-for="item in order" :key="item.id">
         <div class="item detail-item">
           <div class="goods-img">
@@ -32,6 +32,21 @@
         <p @click="pushOrder()">提交订单</p>
       </div>
     </div>
+    <mt-popup
+        v-model="selectAddress"
+        position="right" style="width: 100%;height: 100%;background: rgba(100,149,237,0.5)">
+      <div style="height: 90%">
+        <div class="box" v-for="item in selectA" :key="item.id" @click="changeAddress(item.address)">
+          <p>{{ item.address }}<a v-show="item.chief" style="color: red">[默认地址]</a></p>
+        </div>
+
+      </div>
+
+      <div style="width: 100%;text-align: center;height: 10%">
+        <mt-button style="width: 100%"
+                   @click.native="selectAddress=false" type="primary">取消</mt-button>
+      </div>
+    </mt-popup>
   </div>
 </template>
 
@@ -43,11 +58,17 @@ export default {
   data(){
     return{
       order:[],
-      // categoryList: [],
-      address:"22222"
+      address:"",
+      selectAddress:false,
+      selectA:[]
     }
   },
   mounted() {
+    if (!this.$store.getters.isLogin){
+      this.$store.commit("setRouterPath","/");
+      this.$router.push("/login");
+      return ;
+    }
     this.$eventbus.$emit("changeTitle", "确认订单");
     const cartList=this.$store.getters.getEnterOrder;
     console.log(cartList)
@@ -57,8 +78,50 @@ export default {
       goo.id=cartList[i].id;
       this.order.push(goo);
     }
+    this.getDefaultAddress();
   },
   methods:{
+    openSelectAddress(){
+      this.$ajax({
+        method:"get",
+        url:"http://localhost:8080/address/my",
+        headers:this.$store.getters.getHeader
+      }).then(res=>{
+        if (res.data.code===0){
+          this.selectA=res.data.data;
+          this.selectAddress=true;
+        }else {
+          Toast({
+            message:"地址获取失败",
+            position:"middle",
+            duration:3000
+          });
+        }
+      })
+
+
+    },
+    changeAddress(add){
+      this.address=add;
+      this.selectAddress=false;
+    },
+    getDefaultAddress(){
+      this.$ajax({
+        method:"get",
+        url:"http://localhost:8080/address/getDefault",
+        headers:this.$store.getters.getHeader,
+      }).then(res=>{
+        if (res.data.code===0){
+          this.address=res.data.data;
+        }else {
+          Toast({
+            message:res.data.msg,
+            position:"middle",
+            duration:3000
+          });
+        }
+      })
+    },
     so(gid){
       const goods=this.$store.getters.getGoodsList;
       for (let i=0;i<goods.length;i++){
@@ -147,4 +210,18 @@ export default {
   background: #6495ed;
   height: 100%;
 }
+.box{
+  height: auto;
+  min-height: 60px;
+  width: 100%;
+  padding: 5px;
+  font-size: larger;
+  background: white;
+  margin-bottom: 10px;
+  margin-top: 10px;
+}
+.box p{
+  line-height: 30px;
+}
+
 </style>

@@ -15,7 +15,7 @@
 							</div>
 							<div class="goods-textBox">
 								<p class="goods-name">{{item.name}}</p>
-								<p class="goods-coach">{{item.price}}</p>
+								<p class="goods-coach">{{item.price}} <a style="color: #757575" v-show="item.stock<10">剩{{item.stock}}件</a></p>
 								<p class="goods-cartBox fa fa-shopping-cart" @click="addCart(item)"></p>
 							</div>
 						</div>
@@ -84,12 +84,6 @@
           }
 				});
 			},
-			getCategoryPro(catgoryId){
-				this.$ajax.get("http://localhost:3000/catgory/"+catgoryId+"/prodctList")
-				.then(res=>{
-					this.productList = res.data;
-				});
-			},
       clickType(index){
         if (this.categoryList[index].click){
           this.categoryList[index].click=false;
@@ -113,13 +107,27 @@
           return ""
         }
       },
-			addCart(item){
-				this.$store.dispatch('addgood',item);
-				Toast({
-					message:"加入购物车成功",
-					position:"middle",
-					duration:1000
-				});
+			addCart(goods){
+        this.$ajax({
+          method:"post",
+          url:"http://localhost:8080/cart/add",
+          headers:this.$store.getters.getHeader,
+          data:{gid:goods.id,num:1}
+        }).then(res=>{
+          if (res.data.code===0){
+            Toast({
+              message:"添加成功",
+              position:"middle",
+              duration:3000
+            });
+          }else {
+            Toast({
+              message:res.data.msg,
+              position:"middle",
+              duration:3000
+            });
+          }
+        })
 			}
 		}
 	}

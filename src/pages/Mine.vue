@@ -14,11 +14,11 @@
 				</p>
 
 			</div>
-			<div class="floor floor_item floor_two flex-align-center flex-between">
+			<div class="floor floor_item floor_two flex-align-center flex-between" @click="toMyMsg()">
 				<p>我的信息</p>
 				<i></i>
 			</div>
-			<div class=" floor floor_item floor_two flex-align-center flex-between">
+			<div class=" floor floor_item floor_two flex-align-center flex-between" @click="toMyOrder()">
 				<p>我的订单</p>
 				<i></i>
 			</div>
@@ -45,8 +45,14 @@
       }
 		},
     methods:{
+      toMyMsg:function (){
+        this.$router.push("/myMsg")
+      },
       toAddress:function () {
         this.$router.push("/address")
+      },
+      toMyOrder:function (){
+        this.$router.push("/myOrder")
       }
     }
 	}

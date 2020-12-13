@@ -19,6 +19,9 @@ import store from'./store.js'
 // 全局变量
 import Mint from 'mint-ui';
 Vue.use(Mint);
+import { Popup } from 'mint-ui';
+
+Vue.component(Popup.name, Popup);
 import 'mint-ui/lib/style.css'
 // mint的css组件
 

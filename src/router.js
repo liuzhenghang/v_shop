@@ -11,6 +11,8 @@ import Mine from './pages/Mine.vue'
 import Address from './pages/Address'
 import EnterOrder from './pages/EnableOrder'
 import Login from'./pages/Login.vue'
+import MyOrder from './pages/MyOrder'
+import MyMsg from "@/pages/MyMsg";
 
 
 // 2将模块赋给vue实例.,注册到全局，整个项目都可以使用路由
@@ -47,6 +49,14 @@ const routes = [{
 	{
 		path:'/register',
 		component: Register
+	},
+	{
+		path: '/myOrder',
+		component: MyOrder
+	},
+	{
+		path: '/myMsg',
+		component: MyMsg
 	}
 ]
 // 4创建路由实例   ,把路由表（规则），应用到路由实例中
